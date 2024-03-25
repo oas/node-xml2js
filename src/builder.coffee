@@ -30,6 +30,7 @@ class exports.Builder
   buildObject: (rootObj) ->
     attrkey = @options.attrkey
     charkey = @options.charkey
+    indexkey = @options.indexkey
 
     # If there is a sane-looking first element to use as the root,
     # and the user hasn't specified a non-default rootName,
@@ -54,7 +55,23 @@ class exports.Builder
           for key, entry of child
             element = render(element.ele(key), entry).up()
       else
-        for own key, child of obj
+        sortedEntries = []
+        for key, value of obj
+          for item in value
+            temp = {}
+            temp[key] = item
+            sortedEntries.push temp
+
+        sortedEntries.sort (a, b) ->
+          aKey = Object.values(a)[0][indexkey]
+          bKey = Object.values(b)[0][indexkey]
+          aKey - bKey
+
+        for entry in sortedEntries
+          key = Object.keys(entry)[0]
+
+          child = entry[key]
+
           # Case #1 Attribute
           if key is attrkey
             if typeof child is "object"
@@ -68,6 +85,9 @@ class exports.Builder
               element = element.raw wrapCDATA child
             else
               element = element.txt child
+
+          else if key is indexkey
+            # ignore the indexkey
 
           # Case #3 Array data
           else if Array.isArray child

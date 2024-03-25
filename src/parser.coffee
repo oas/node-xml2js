@@ -110,6 +110,9 @@ class exports.Parser extends events
     # aliases, so we don't have to type so much
     attrkey = @options.attrkey
     charkey = @options.charkey
+    indexing = @options.indexing
+    indexkey = @options.indexkey
+    indexMapping = {}
 
     @saxParser.onopentag = (node) =>
       obj = {}
@@ -129,6 +132,16 @@ class exports.Parser extends events
       obj["#name"] = if @options.tagNameProcessors then processItem(@options.tagNameProcessors, node.name) else node.name
       if (@options.xmlns)
         obj[@options.xmlnskey] = {uri: node.uri, local: node.local}
+
+      if indexing
+        if stack.length > 0
+          parentTag = stack[stack.length - 1]["#name"]
+          if indexMapping[parentTag] != undefined
+            indexMapping[parentTag] = indexMapping[parentTag] + 1
+          else
+            indexMapping[parentTag] = 0
+          obj[indexkey] = indexMapping[parentTag]
+
       stack.push obj
 
     @saxParser.onclosetag = =>

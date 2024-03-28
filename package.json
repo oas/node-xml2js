@@ -65,7 +65,7 @@
   },
   "scripts": {
     "build": "cake build",
-    "test": "zap",
+    "test": "vitest --run ./test-js && zap ./test/*.test.coffee",
     "coverage": "nyc npm test && nyc report",
     "coveralls": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
     "doc": "cake doc"
